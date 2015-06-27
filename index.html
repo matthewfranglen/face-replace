@@ -24,13 +24,19 @@
                 <source src="static/ferris.mp4"/>
             </video>
             -->
+
             <img id="source" src="static/glenn.jpg">
+
             <div>
                 <img id="target" src="static/sample.jpg">
+
                 <div ng-repeat="face in faceReplace.targets">
-                    <img class="face" src="static/glenn.jpg" ng-style="face">
+                    <div class="crop" ng-style="face.crop">
+                        <img class="face" src="static/masked-glenn.png" ng-style="face.img">
+                    </div>
                 </div>
             </div>
+
         </div>
     </body>
 </html>
