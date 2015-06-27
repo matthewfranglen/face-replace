@@ -39,13 +39,13 @@ angular.module('faceReplaceApp', [])
         canvas.height = height;
         canvas.getContext('2d').drawImage(image[0], -x, -y, width + x, height + y);
 
-        return canvas.getContext('2d');
+        return canvas;
     };
 
     var generateAlphaMap = function (canvas, width, height) {
         var imageData, alphaMap, i;
 
-        imageData = canvas.getImageData(0, 0, width, height).data;
+        imageData = canvas.getContext('2d').getImageData(0, 0, width, height).data;
         alphaMap = [];
         alphaMap.length = width * height;
 
@@ -59,7 +59,7 @@ angular.module('faceReplaceApp', [])
     var mostCommonColor = function (canvas, width, height, alphaMap) {
         var imageData, average, count, i, j, alpha;
 
-        imageData = canvas.getImageData(0, 0, width, height).data;
+        imageData = canvas.getContext('2d').getImageData(0, 0, width, height).data;
 
         average = [0, 0, 0];
         count = 0;
@@ -80,6 +80,36 @@ angular.module('faceReplaceApp', [])
         return average;
     };
 
+    var colorMapImage = function (source, sourceAverage, targetAverage) {
+        var canvas, context, imageData, offset, i, j, color;
+
+        canvas = getImageCanvas(source, 0, 0, source[0].width, source[0].height);
+        context = canvas.getContext('2d');
+        imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+        offset = [];
+        offset.length = 3;
+        for (i = 0; i < 3; i++) {
+            offset[i] = targetAverage[i] - sourceAverage[i];
+        }
+
+        for (i = 0; i < imageData.data.length; i += 4) {
+            for (j = 0; j < 3; j++) {
+                color = imageData.data[i + j] + offset[j];
+                color = color === 0
+                      ? 0
+                      : color > 255
+                      ? 255
+                      : color;
+                imageData.data[i + j] = color;
+            }
+        }
+
+        context.putImageData(imageData, 0, 0);
+
+        return canvas.toDataURL('image/png');
+    };
+
     var replaceFaces = function () {
         var sourceImage = angular.element('#source');
         var sourceBox = faceReplace.sources[0];
@@ -88,11 +118,13 @@ angular.module('faceReplaceApp', [])
         var replaceFace = function (targetBox) {
             var canvas = getImageCanvas(targetImage, targetBox.x, targetBox.y, targetBox.width, targetBox.height);
             var commonColor = mostCommonColor(canvas, targetBox.width, targetBox.height, faceReplace.alphaMap);
-            console.log(commonColor);
+            var mappedImageUrl = colorMapImage(faceReplace.maskedImage, faceReplace.mostCommonColor, commonColor);
+            console.log(mappedImageUrl);
 
             faceReplace.targets.push({
                 'crop': calculateCrop(targetBox),
-                'img': calculateImage(sourceImage, sourceBox, targetBox)
+                'img': calculateImage(sourceImage, sourceBox, targetBox),
+                'src': mappedImageUrl
             });
         };
 
@@ -115,17 +147,17 @@ angular.module('faceReplaceApp', [])
             faceReplace.sources.push(data);
         });
 
-        var maskedImage = angular.element('<img src="static/masked-glenn.png" />');
-        maskedImage.one('load', function () {
+        faceReplace.maskedImage = angular.element('<img src="static/masked-glenn.png" />');
+        faceReplace.maskedImage.one('load', function () {
             var sourceBox = faceReplace.sources[0];
-            var canvas = getImageCanvas(maskedImage, sourceBox.x, sourceBox.y, sourceBox.width, sourceBox.height);
+            var canvas = getImageCanvas(faceReplace.maskedImage, sourceBox.x, sourceBox.y, sourceBox.width, sourceBox.height);
             faceReplace.alphaMap = generateAlphaMap(canvas, sourceBox.width, sourceBox.height);
             faceReplace.mostCommonColor = mostCommonColor(canvas, sourceBox.width, sourceBox.height, faceReplace.alphaMap);
 
             console.log(faceReplace.alphaMap);
             console.log(faceReplace.mostCommonColor);
-        });
 
-        replaceFaces();
+            replaceFaces();
+        });
     });
 }]);

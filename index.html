@@ -32,7 +32,7 @@
 
                 <div ng-repeat="face in faceReplace.targets">
                     <div class="crop" ng-style="face.crop">
-                        <img class="face" src="static/masked-glenn.png" ng-style="face.img">
+                        <img class="face" src="{{face.src}}" ng-style="face.img">
                     </div>
                 </div>
             </div>
