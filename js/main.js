@@ -57,19 +57,24 @@ angular.module('faceReplaceApp', [])
     };
 
     var mostCommonColor = function (canvas, width, height, alphaMap) {
-        var imageData, average, result, i, key, alpha;
+        var imageData, average, result, i, key, values, alpha;
 
         imageData = canvas.getContext('2d').getImageData(0, 0, width, height).data;
 
         average = {};
 
         for (i = 0; i < imageData.length; i += 4) {
+            values = [imageData[i], imageData[i + 1], imageData[i + 2]];
             alpha = alphaMap[i / 4];
 
-            key = '(' + imageData[i] + ',' + imageData[i + 1] + ',' + imageData[i + 2] + ')';
+            if (values[0] * values[1] * values[2] < 60 * 60 * 60) {
+                continue;
+            }
+
+            key = '(' + values[0] + ',' + values[1] + ',' + values[2] + ')';
             if (! average[key]) {
                 average[key] = {
-                    'values': [imageData[i], imageData[i + 1], imageData[i + 2]],
+                    'values': values,
                     'count': 0
                 };
             }
