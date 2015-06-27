@@ -57,27 +57,41 @@ angular.module('faceReplaceApp', [])
     };
 
     var mostCommonColor = function (canvas, width, height, alphaMap) {
-        var imageData, average, count, i, j, alpha;
+        var imageData, average, result, i, key, alpha;
 
         imageData = canvas.getContext('2d').getImageData(0, 0, width, height).data;
 
-        average = [0, 0, 0];
-        count = 0;
+        average = {};
 
         for (i = 0; i < imageData.length; i += 4) {
             alpha = alphaMap[i / 4];
-            count += alpha;
 
-            for (j = 0; j < average.length; j++) {
-                average[j] += imageData[i + j] * alpha;
+            key = '(' + imageData[i] + ',' + imageData[i + 1] + ',' + imageData[i + 2] + ')';
+            if (! average[key]) {
+                average[key] = {
+                    'values': [imageData[i], imageData[i + 1], imageData[i + 2]],
+                    'count': 0
+                };
+            }
+            average[key].count += alpha;
+        }
+
+        delete average['(0,0,0)'];
+        console.log(average);
+
+        result = null;
+
+        for (key in average) {
+            if (result === null) {
+                result = average[key];
+            }
+            else if (result.count < average[key].count) {
+                result = average[key];
             }
         }
+        console.log(result.count, result.values);
 
-        for (i = 0; i < average.length; i++) {
-            average[i] /= count;
-        }
-
-        return average;
+        return result.values;
     };
 
     var colorMapImage = function (source, sourceAverage, targetAverage) {
@@ -119,7 +133,6 @@ angular.module('faceReplaceApp', [])
             var canvas = getImageCanvas(targetImage, targetBox.x, targetBox.y, targetBox.width, targetBox.height);
             var commonColor = mostCommonColor(canvas, targetBox.width, targetBox.height, faceReplace.alphaMap);
             var mappedImageUrl = colorMapImage(faceReplace.maskedImage, faceReplace.mostCommonColor, commonColor);
-            console.log(mappedImageUrl);
 
             faceReplace.targets.push({
                 'crop': calculateCrop(targetBox),
@@ -153,9 +166,6 @@ angular.module('faceReplaceApp', [])
             var canvas = getImageCanvas(faceReplace.maskedImage, sourceBox.x, sourceBox.y, sourceBox.width, sourceBox.height);
             faceReplace.alphaMap = generateAlphaMap(canvas, sourceBox.width, sourceBox.height);
             faceReplace.mostCommonColor = mostCommonColor(canvas, sourceBox.width, sourceBox.height, faceReplace.alphaMap);
-
-            console.log(faceReplace.alphaMap);
-            console.log(faceReplace.mostCommonColor);
 
             replaceFaces();
         });
