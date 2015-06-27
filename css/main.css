@@ -7,6 +7,9 @@ body {
     justify-content: center;
     width: 100%;
 }
+.container > * {
+    margin: 16px;
+}
 .container > div {
     position: relative;
 }
