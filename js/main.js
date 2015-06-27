@@ -37,7 +37,7 @@ angular.module('faceReplaceApp', [])
         canvas = angular.element('<canvas/>')[0];
         canvas.width = width;
         canvas.height = height;
-        canvas.getContext('2d').drawImage(image[0], -x, -y, width + x, height + y);
+        canvas.getContext('2d').drawImage(image[0], -x, -y, image[0].width, image[0].height);
 
         return canvas;
     };
