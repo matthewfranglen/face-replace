@@ -1,0 +1,35 @@
+<!doctype html>
+<html ng-app="faceReplaceApp">
+    <head>
+        <meta charset="utf-8">
+        <title>Glenn Buellers Day Off</title>
+
+        <link rel="stylesheet" href="css/main.css">
+
+        <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+        <script src="bower_components/tracking/build/tracking.js"></script>
+        <script src="bower_components/tracking/build/data/eye.js"></script>
+        <script src="bower_components/tracking/build/data/face.js"></script>
+        <script src="bower_components/tracking/build/data/mouth.js"></script>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.16/angular.min.js"></script>
+
+        <script src="js/main.js"></script>
+    </head>
+    <body>
+        <div class="container" ng-controller="FaceReplaceController as faceReplace">
+            <!--
+            <video controls id="video">
+                <source src="static/ferris.mp4"/>
+            </video>
+            -->
+            <div>
+                <img id="video" src="static/sample.jpg">
+                <div ng-repeat="face in faceReplace.faces">
+                    <img class="face" src="static/glenn.jpg" ng-style="face">
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

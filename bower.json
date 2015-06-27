@@ -1,0 +1,20 @@
+{
+  "name": "face-replace",
+  "version": "0.0.0",
+  "authors": [
+    "Matthew Franglen <matthew@franglen.org>"
+  ],
+  "description": "replace all faces with glenn",
+  "main": "js/main.js",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "tracking": "~1.1.1"
+  }
+}
